@@ -7,6 +7,11 @@ import network
 import ntptime
 import time
 import gfx
+import framebuf
+from imagen import (figura)
+
+ancho = 128
+alto = 64
 
 # Pantalla led
 spi = SPI(1, baudrate=10000000, polarity=1, phase=0, sck=Pin(18), mosi=Pin(23))
@@ -16,7 +21,7 @@ display = max7219.Matrix8x8(spi, cs, 4)
 # Pantalla Oled
 i2c = I2C(0, sda=Pin(21), scl=Pin(22))
 display2 = ssd1306.SSD1306_I2C(128, 64, i2c)
-grafica = gfx.GFX(128, 64, display2.pixel)
+grafica = gfx.GFX(ancho, alto, display2.pixel)
 
 # Sensor de pulso cardiaco
 cardio = ADC(Pin(34))
@@ -82,7 +87,7 @@ def mostrarOledInicio():
     persona2 = "Juanita Mesa"
 
     display2.fill(0)
-    for i in range(128, -128, -1):
+    for i in range(ancho, -ancho, -1):
         display2.text(fecha, i, 10, 1)
         display2.text(hora, i, 20, 1)
         display2.text(persona1, i, 40, 1)
@@ -91,7 +96,7 @@ def mostrarOledInicio():
         sleep(0.005)
         display2.fill(0)
     
-    for i in range(128, -128, -2):
+    for i in range(ancho, -ancho, -2):
         grafica.fill_rect(i+20, 10, 20, 20, 1)
         grafica.fill_rect(i+60, 10, 20, 20, 1)
         grafica.fill_rect(i+30, 40, 20, 20, 1)
@@ -100,7 +105,14 @@ def mostrarOledInicio():
         sleep(0.005)
         display2.fill(0)
 
-    
+def graficarFiguras():
+    display2.fill(0)
+    buffer = bytearray(figura)
+    fb = framebuf.FrameBuffer(buffer, 128, 64, framebuf.MONO_HLSB)
+    display2.framebuf.blit(fb, 0, 0)
+    display2.show()
+    sleep(tiempo1)
+
 # Inicializacion
 
 usuario = 'Redmi Note 13'
@@ -109,13 +121,15 @@ connect_wifi(usuario, contrasena)
 horaActual = sync_time()
 
 display2.poweron()
-
+tiempo1 = 10
+tiempo2 = 20
 mostrarDisplayInicio()
 mostrarOledInicio()
 
-#while True:
+while True:
+    graficarFiguras()
     
-    
+
     #display2.fill(0)
     #display2.text("Hola mundo", 0, 0, 1)
     #display2.show()
