@@ -187,7 +187,7 @@ def mostrarPulsoOled():
     for i in range(64, -64, -1):
         display2.text(str(VFiltrado), 30, i, 1)
         display2.show()
-        sleep(0.05)
+        sleep(0.02)
         display2.fill(0)
     sleep(0.5)
 
@@ -204,14 +204,14 @@ def mostrarPulsoLed():
     for i in range(8, -8, -1):
         display.text(str(int(VFiltrado)), 0, i, 1)
         display.show()
-        sleep(0.01)
+        sleep(0.1)
         display.fill(0)
     sleep(0.5)
 
 # Inicializacion
 
-usuario = 'Redmi Note 13'
-contrasena = '1128389368'
+usuario = 'iPhone'
+contrasena = 'Aley2201'
 connect_wifi(usuario, contrasena)
 horaActual = sync_time()
 
