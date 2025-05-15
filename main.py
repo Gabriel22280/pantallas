@@ -14,7 +14,7 @@ ancho = 128
 alto = 64
 archivo = "dog.pbm"
 tiempo1 = 4
-tiempo2 = 6
+tiempo2 = 2
 
 # Touch pad
 Tp1 = TouchPad(Pin(13))
@@ -61,13 +61,18 @@ def sync_time():
 # Imagenes
 def mostrarDisplayInicio():
     horaActual = sync_time()
-    hora = str(horaActual[3]) + "" + str(horaActual[4])
+    fecha = str(horaActual[2]) + "/" + str(horaActual[1]) + "/" + str(horaActual[0]) 
+    hora = str(horaActual[3]) + ":" + str(horaActual[4])
+    fechaHora = fecha + " - " + hora
+    long = len(fechaHora)*8
+    for i in range(-long, 32, 1):
+        display.text(fechaHora, i, 1, 1)
+        display.show()
+        sleep(0.05)
+        display.fill(0)
+    sleep(2)
     mensaje = "Bienvenido a todos"
     long = len(mensaje)*8
-    display.fill(0)
-    display.text(hora, 0, 0, 1)
-    display.show()
-    sleep(5)
     for i in range(-long, 32, 1):
         display.text(mensaje, i, 1, 1)
         display.show()
@@ -89,8 +94,8 @@ def mostrarOledInicio():
     horaActual = sync_time()
     fecha = str(horaActual[2]) + "/" + str(horaActual[1]) + "/" + str(horaActual[0]) 
     hora = str(horaActual[3]) + ":" + str(horaActual[4])
-    persona1 = "Julanito Alley"
-    persona2 = "Juanita Mesa"
+    persona1 = "Gabriel Aley"
+    persona2 = "Yureicy Sierra"
     display2.fill(0)
     for i in range(ancho, -ancho, -1):
         display2.text(fecha, i, 10, 1)
@@ -169,6 +174,40 @@ def thLed():
         display.fill(0)
     sleep(2)
 
+def mostrarPulsoOled():
+    display.fill(0)
+    display2.fill(0)
+    display.show()
+    display2.show()
+    valor = cardio.read()
+    factor = 0.75
+    antes = 512
+    VFiltrado = factor*antes + (1-factor)*valor
+    display2.fill(0)
+    for i in range(64, -64, -1):
+        display2.text(str(VFiltrado), 30, i, 1)
+        display2.show()
+        sleep(0.05)
+        display2.fill(0)
+    sleep(0.5)
+
+def mostrarPulsoLed():
+    display.fill(0)
+    display2.fill(0)
+    display.show()
+    display2.show()
+    valor = cardio.read()
+    factor = 0.75
+    antes = 512
+    VFiltrado = factor*antes + (1-factor)*valor
+    display2.fill(0)
+    for i in range(8, -8, -1):
+        display.text(str(int(VFiltrado)), 0, i, 1)
+        display.show()
+        sleep(0.01)
+        display.fill(0)
+    sleep(0.5)
+
 # Inicializacion
 
 usuario = 'Redmi Note 13'
@@ -178,8 +217,8 @@ horaActual = sync_time()
 
 display2.poweron()
 estado = 0
-#mostrarDisplayInicio()
-#mostrarOledInicio()
+mostrarDisplayInicio()
+mostrarOledInicio()
 
 while True:
     e1 = Tp1.read()
@@ -190,7 +229,10 @@ while True:
         estado = 3
     e3 = Tp3.read()
     if e3 < 150:
-        estado = 4
+        if estado == 4:
+            estado = 5
+        else:
+            estado = 4
 
     if estado == 0:
         graficarFiguras()
@@ -201,3 +243,7 @@ while True:
         thOled()
     if estado == 3:
         thLed()
+    if estado == 4:
+        mostrarPulsoOled()
+    if estado == 5:
+        mostrarPulsoLed()
