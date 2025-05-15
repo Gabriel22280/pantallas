@@ -16,6 +16,11 @@ archivo = "dog.pbm"
 tiempo1 = 4
 tiempo2 = 6
 
+# Touch pad
+Tp1 = TouchPad(Pin(13))
+Tp2 = TouchPad(Pin(12))
+Tp3 = TouchPad(Pin(14))
+
 # Pantalla led
 spi = SPI(1, baudrate=10000000, polarity=1, phase=0, sck=Pin(18), mosi=Pin(23))
 cs = Pin(5, Pin.OUT)
@@ -123,6 +128,47 @@ def graficarFiguras():
     display2.show()
     sleep(tiempo2)
 
+def esperar():
+    display.fill(0)
+    display2.fill(0)
+    display2.text("1. TH oled", 20, 10, 1)
+    display2.text("2. TH led", 20, 20, 1)
+    display2.text("3. pulso", 20, 30, 1)
+    display2.show()
+    sleep(0.05)
+
+def thOled():
+    display.fill(0)
+    display2.fill(0)
+    display.show()
+    display2.show()
+    th.measure()
+    temp = th.temperature()
+    hum = th.humidity()
+    textoT = "Temp: " + str(temp)
+    textoH = "Hum : " + str(hum)
+    display2.text(textoT, 20, 20, 1)
+    display2.text(textoH, 20, 30, 1)
+    display2.show()
+    sleep(2)
+
+def thLed():
+    display.fill(0)
+    display2.fill(0)
+    display.show()
+    display2.show()
+    th.measure()
+    temp = th.temperature()
+    hum = th.humidity()
+    textoTH = "Temp: " + str(temp) + " - Hum : " + str(hum)
+    long = len(textoTH)*8
+    for i in range(-long, 32, 1):
+        display.text(textoTH, i, 1, 1)
+        display.show()
+        sleep(0.05)
+        display.fill(0)
+    sleep(2)
+
 # Inicializacion
 
 usuario = 'Redmi Note 13'
@@ -131,19 +177,27 @@ connect_wifi(usuario, contrasena)
 horaActual = sync_time()
 
 display2.poweron()
+estado = 0
 #mostrarDisplayInicio()
 #mostrarOledInicio()
 
 while True:
-    graficarFiguras()
-    
+    e1 = Tp1.read()
+    if e1 < 150:
+        estado = 2
+    e2 = Tp2.read()
+    if e2 < 150:
+        estado = 3
+    e3 = Tp3.read()
+    if e3 < 150:
+        estado = 4
 
-    #display2.fill(0)
-    #display2.text("Hola mundo", 0, 0, 1)
-    #display2.show()
-    
-    #th.measure()
-    #temp = th.temperature()
-    #hum = th.humidity()
-    #print(temp)
-    #print(hum)
+    if estado == 0:
+        graficarFiguras()
+        estado = 1
+    if estado == 1:
+        esperar()
+    if estado == 2:
+        thOled()
+    if estado == 3:
+        thLed()
