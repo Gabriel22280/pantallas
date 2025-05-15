@@ -12,6 +12,9 @@ from imagen import (figura)
 
 ancho = 128
 alto = 64
+archivo = "dog.pbm"
+tiempo1 = 4
+tiempo2 = 6
 
 # Pantalla led
 spi = SPI(1, baudrate=10000000, polarity=1, phase=0, sck=Pin(18), mosi=Pin(23))
@@ -50,24 +53,22 @@ def sync_time():
     local_time = time.localtime(time.time() + timezone_offset)
     return local_time
 
+# Imagenes
 def mostrarDisplayInicio():
     horaActual = sync_time()
     hora = str(horaActual[3]) + "" + str(horaActual[4])
     mensaje = "Bienvenido a todos"
     long = len(mensaje)*8
-    
     display.fill(0)
     display.text(hora, 0, 0, 1)
     display.show()
     sleep(5)
-
     for i in range(-long, 32, 1):
         display.text(mensaje, i, 1, 1)
         display.show()
         sleep(0.05)
         display.fill(0)
     display.vline(4,0,8,1)
-
     for i in range(-32, 32, 1):
         display.fill(0)
         display.line(i, 3, i+7, 3, 1)
@@ -85,7 +86,6 @@ def mostrarOledInicio():
     hora = str(horaActual[3]) + ":" + str(horaActual[4])
     persona1 = "Julanito Alley"
     persona2 = "Juanita Mesa"
-
     display2.fill(0)
     for i in range(ancho, -ancho, -1):
         display2.text(fecha, i, 10, 1)
@@ -95,7 +95,6 @@ def mostrarOledInicio():
         display2.show()
         sleep(0.005)
         display2.fill(0)
-    
     for i in range(ancho, -ancho, -2):
         grafica.fill_rect(i+20, 10, 20, 20, 1)
         grafica.fill_rect(i+60, 10, 20, 20, 1)
@@ -112,6 +111,17 @@ def graficarFiguras():
     display2.framebuf.blit(fb, 0, 0)
     display2.show()
     sleep(tiempo1)
+    display2.fill(0)
+
+    with open(archivo, 'rb') as f:
+        f.readline()
+        f.readline()
+        data = bytearray(f.read())
+    f.close
+    fb = framebuf.FrameBuffer(data, 64, 64, framebuf.MONO_HLSB)
+    display2.framebuf.blit(fb, 32, 0)
+    display2.show()
+    sleep(tiempo2)
 
 # Inicializacion
 
@@ -121,10 +131,8 @@ connect_wifi(usuario, contrasena)
 horaActual = sync_time()
 
 display2.poweron()
-tiempo1 = 10
-tiempo2 = 20
-mostrarDisplayInicio()
-mostrarOledInicio()
+#mostrarDisplayInicio()
+#mostrarOledInicio()
 
 while True:
     graficarFiguras()
